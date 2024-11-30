@@ -107,6 +107,15 @@ else
 	cap_dep = dependency('disabler-appears-to-disable-executable-build', required : false)
 endif
 
+json = get_option('USE_JSON')
+if json == true
+	json_dep = cc.find_library('json-c')
+	conf.set('HAVE_LIBJSON', 1,
+		description : 'Defined if libjson-c exists.')
+else
+	json_dep = dependency('disabler-appears-to-disable-executable-build', required : false)
+endif
+
 opt = get_option('ARPING_DEFAULT_DEVICE')
 if opt != ''
 	conf.set_quoted('DEFAULT_DEVICE', opt, description : 'arping default device.')
@@ -244,6 +253,7 @@ output += 'tracepath: ' + build_tracepath.to_string() + '\n'
 
 output += '\nCONFIGURATION\n'
 output += 'Capability (with libcap): ' + cap.to_string() + '\n'
+output += 'Capability (with libjson-c): ' + json.to_string() + '\n'
 output += 'IDN (with libidn2): ' + idn.to_string() + '\n'
 output += 'I18N (with gettext): ' + gettext.to_string() + '\n'
 output += 'systemd: ' + install_systemd_units.to_string() + '\n'

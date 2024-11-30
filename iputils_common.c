@@ -173,6 +173,13 @@ void print_config(void)
 	"no"
 #endif
 
+	"libjson-c: "
+#ifdef HAVE_LIBJSON
+	"yes"
+#else
+	"no"
+#endif
+
 	", IDN: "
 #ifdef USE_IDN
 	"yes"

@@ -38,6 +38,12 @@
 # include <sys/capability.h>
 #endif
 
+#ifdef HAVE_LIBJSON
+# include <json-c/json_object.h>
+#else
+# define print_json_statistics(a) print_json(a)
+#endif
+
 #include "iputils_common.h"
 #include "iputils_ni.h"
 
@@ -232,6 +238,13 @@ struct ping_rts {
 	size_t cmsglen;
 	struct ping_ni ni;
 
+#ifdef HAVE_LIBJSON
+	struct json_object *pj;
+
+	struct json_object *pjobj;
+	struct json_object *pjstats;
+#endif
+
 	/* boolean option bits */
 	unsigned int
 		opt_adaptive:1,
@@ -250,7 +263,9 @@ struct ping_rts {
 		opt_pingfilled:1,
 		opt_ptimeofday:1,
 		opt_rtt_precision:1,
+		opt_version:1,
 		opt_quiet:1,
+		opt_json:1,
 		opt_rroute:1,
 		opt_so_debug:1,
 		opt_so_dontroute:1,
@@ -413,10 +428,30 @@ extern void common_options(int ch);
 extern int gather_statistics(struct ping_rts *rts, uint8_t *icmph, int icmplen,
 			     int cc, uint16_t seq, int hops,
 			     int csfailed, struct timeval *tv, char *from,
-			     void (*pr_reply)(uint8_t *ptr, int cc), int multicast,
+			     void (*pr_reply)(struct ping_rts *rts, uint8_t *ptr, int cc), int multicast,
 			     int wrong_source);
 extern void print_timestamp(struct ping_rts *rts);
 void fill(struct ping_rts *rts, char *patp, unsigned char *packet, unsigned packet_size);
+
+#define PING_JSON_NUL 0
+#define PING_JSON_STR 1
+#define PING_JSON_INT 2
+
+#ifdef HAVE_LIBJSON
+void construct_json(struct ping_rts *rts, int ptype, char *key, ...);
+void construct_json_statistics(struct ping_rts *rts, struct timespec tv, char *rttmin, char *rttavg, char *rttmax, char *rttmdev);
+void construct_json_statistics_flood(struct ping_rts *rts, char *ipg, char *ewma);
+void print_json(struct ping_rts *rts);
+void print_json_statistics(struct ping_rts *rts);
+void error_json(struct ping_rts *rts, int status, char *errtype, char *errmsg, int ptype, char *extrakey, ...);
+#else
+void construct_json(struct ping_rts *rts, ...);
+void construct_json_statistics(struct ping_rts *rts, ...);
+void construct_json_statistics_flood(struct ping_rts *rts, ...);
+void print_json(struct ping_rts *rts);
+void print_json_statistics(struct ping_rts *rts);
+void error_json(struct ping_rts *rts, ...);
+#endif
 
 /* IPv6 */
 

@@ -3,17 +3,26 @@
 
 inc = include_directories('..')
 
-ping = executable('ping', [
-		'ping.c',
-		'ping_common.c',
-		'ping6_common.c',
-		'node_info.c',
-		git_version_h
-	],
+cfiles = [
+	'ping.c',
+	'ping_common.c',
+	'ping6_common.c',
+	'node_info.c',
+	git_version_h
+]
+
+if (json)
+  cfiles += 'ping_json.c'
+else
+  cfiles += 'ping_json_dummy.c'
+endif
+
+ping = executable('ping', cfiles,
 	include_directories : inc,
 	dependencies : [
 		cap_dep,
 		idn_dep,
+		json_dep,
 		intl_dep,
 		m_dep,
 		resolv_dep
