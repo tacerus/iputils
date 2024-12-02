@@ -48,7 +48,7 @@ jobs:
           - container: "debian:stable"
             env:
               CC: gcc
-              EXTRA_BUILD_OPTS: "-DUSE_CAP=false -DUSE_IDN=false -DBUILD_ARPING=false -DBUILD_CLOCKDIFF=false -DUSE_GETTEXT=false"
+              EXTRA_BUILD_OPTS: "-DUSE_CAP=false -DUSE_IDN=false -DBUILD_ARPING=false -DBUILD_CLOCKDIFF=false -DUSE_GETTEXT=false -DUSE_JSON=false"
 
           # other builds
           - container: "opensuse/leap"

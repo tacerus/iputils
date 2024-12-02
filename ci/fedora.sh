@@ -31,4 +31,4 @@ if [ "$(basename $0)" = "centos.sh" ] || [ "$(basename $0)" = "rockylinux.sh" ];
 	fi
 fi
 
-yum -y install docbook5-style-xsl libidn2-devel meson ninja-build
+yum -y install docbook5-style-xsl json-c-devel libidn2-devel meson ninja-build

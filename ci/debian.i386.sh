@@ -11,5 +11,6 @@ apt install -y --no-install-recommends \
 	libc6-dev-i386 \
 	libc6:i386 \
 	libidn2-0-dev:i386 \
+	libjson-c-dev:i386 \
 	libssl-dev:i386 \
 	pkg-config:i386
