@@ -110,10 +110,11 @@ endif
 json = get_option('USE_JSON')
 if json == true
 	json_dep = cc.find_library('json-c')
-	conf.set('HAVE_LIBJSON', 1,
-		description : 'Defined if libjson-c exists.')
-else
-	json_dep = dependency('disabler-appears-to-disable-executable-build', required : false)
+	if json_dep.found()
+		add_project_arguments('-DUSE_JSON', language : 'c')
+		conf.set('HAVE_LIBJSON', 1,
+			description : 'Defined if built with libjson-c.')
+	endif
 endif
 
 opt = get_option('ARPING_DEFAULT_DEVICE')

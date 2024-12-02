@@ -11,22 +11,24 @@ cfiles = [
 	git_version_h
 ]
 
+dependencies = [
+	cap_dep,
+	idn_dep,
+	intl_dep,
+	m_dep,
+	resolv_dep
+]
+
 if (json)
   cfiles += 'ping_json.c'
+  dependencies += json_dep
 else
   cfiles += 'ping_json_dummy.c'
 endif
 
 ping = executable('ping', cfiles,
 	include_directories : inc,
-	dependencies : [
-		cap_dep,
-		idn_dep,
-		json_dep,
-		intl_dep,
-		m_dep,
-		resolv_dep
-	],
+	dependencies : dependencies,
 	link_with : [libcommon],
 	install: true)
 

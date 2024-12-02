@@ -6,7 +6,7 @@ option('USE_CAP', type : 'boolean', value : true,
 option('USE_IDN', type : 'boolean', value : true,
 	description : 'IDN support (with libidn2)')
 
-option('USE_JSON', type : 'boolean', value : true,
+option('USE_JSON', type : 'boolean', value : false,
 	description : 'JSON support (with libjson-c)')
 
 option('BUILD_ARPING', type : 'boolean', value : true,
