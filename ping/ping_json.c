@@ -11,48 +11,37 @@ static inline void json_emergency(char *msg)
 	error(1, 0, "%s", msg);
 }
 
-static inline void test_buflen(int size)
+static inline void json_bufsize(struct ping_json_buffer *json_packet, int size)
 {
 	if (size < 0 || size >= PING_JSON_MAX)
 		json_emergency(_("Overflow during JSON construction"));
-}
 
-static inline void set_size(struct ping_json_buffer *json_packet)
-{
-	json_packet->size = strlen(json_packet->object);
+	json_packet->size = size;
 }
 
 static void json_end_array(struct ping_json_buffer *json_packet)
 {
-	set_size(json_packet);
-
-	test_buflen(snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, "]"));
+	json_bufsize(json_packet, snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, "]"));
 }
 
 static void json_start_object(struct ping_json_buffer *json_packet)
 {
-	test_buflen(snprintf(json_packet->object, PING_JSON_MAX, "{"));
+	json_bufsize(json_packet, snprintf(json_packet->object, PING_JSON_MAX, "{"));
 }
 
 static void json_end_object(struct ping_json_buffer *json_packet)
 {
-	set_size(json_packet);
-
-	test_buflen(snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, "}"));
+	json_bufsize(json_packet, snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, "}"));
 }
 
 static void json_continue(struct ping_json_buffer *json_packet)
 {
-	set_size(json_packet);
-
-	test_buflen(snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, ", "));
+	json_bufsize(json_packet, snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, ", "));
 }
 
 static void json_kv_str(struct ping_json_buffer *json_packet, char *key, char *val)
 {
-	set_size(json_packet);
-
-	test_buflen(snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, "\"%s\": \"%s\"", key, val));
+	json_bufsize(json_packet, snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, "\"%s\": \"%s\"", key, val));
 }
 
 static void json_kv_str_continue(struct ping_json_buffer *json_packet, char *key, char *val)
@@ -63,16 +52,12 @@ static void json_kv_str_continue(struct ping_json_buffer *json_packet, char *key
 
 static void json_kv_int(struct ping_json_buffer *json_packet, char *key, int val)
 {
-	set_size(json_packet);
-
-	test_buflen(snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, "\"%s\": %d", key, val));
+	json_bufsize(json_packet, snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, "\"%s\": %d", key, val));
 }
 
 static void json_kv_uint(struct ping_json_buffer *json_packet, char *key, unsigned int val)
 {
-	set_size(json_packet);
-
-	test_buflen(snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, "\"%s\": %u", key, val));
+	json_bufsize(json_packet, snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, "\"%s\": %u", key, val));
 }
 
 static void json_kv_int_continue(struct ping_json_buffer *json_packet, char *key, int val)
@@ -84,9 +69,7 @@ static void json_kv_int_continue(struct ping_json_buffer *json_packet, char *key
 /* so far only supports arrays of strings */
 static void json_kv_array(struct ping_json_buffer *json_packet, char *key, va_list ap)
 {
-	set_size(json_packet);
-
-	test_buflen(snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, "\"%s\": [", key));
+	json_bufsize(json_packet, snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, "\"%s\": [", key));
 
 	char *val;
 	int count = 0;
@@ -100,8 +83,7 @@ static void json_kv_array(struct ping_json_buffer *json_packet, char *key, va_li
 		if (count > 0)
 			json_continue(json_packet);
 
-		set_size(json_packet);
-		test_buflen(snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, "\"%s\"", val));
+		json_bufsize(json_packet, snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, "\"%s\"", val));
 
 		count = count + 1;
 	}
@@ -113,9 +95,7 @@ static void json_kv_object(struct ping_json_buffer *json_packet, char *key, stru
 {
 	json_end_object(json_val);
 
-	set_size(json_packet);
-
-	test_buflen(snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, "\"%s\": %s", key, json_val->object));
+	json_bufsize(json_packet, snprintf(json_packet->object + json_packet->size, PING_JSON_MAX - json_packet->size, "\"%s\": %s", key, json_val->object));
 }
 
 void construct_json(struct ping_rts *rts, enum PING_JSON_TYPE ptype, char *key, ...)
@@ -213,6 +193,7 @@ void print_json_and_reset(struct ping_json_buffer *json_packet)
 	printf("%s}\n", json_packet->object);
 	fflush(stdout);
 	*json_packet->object = '\0';
+	json_packet->size = 0;
 }
 
 void print_json_packet(struct ping_rts *rts)
